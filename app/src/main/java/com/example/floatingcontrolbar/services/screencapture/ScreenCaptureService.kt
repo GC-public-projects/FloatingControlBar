@@ -7,7 +7,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.media.projection.MediaProjection
@@ -16,11 +15,6 @@ import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.example.floatingcontrolbar.MediaProjectionCallback
-
-object MediaProjectionHolder {
-    var mediaProjection: MediaProjection? = null
-    var screenshotManager: ScreenshotManager? = null
-}
 
 class ScreenCaptureService : Service() {
     companion object {
@@ -120,10 +114,3 @@ class ScreenCaptureService : Service() {
     }
 }
 
-class StopCaptureReceiver : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) {
-        // Stop the ScreenCaptureService if it is running
-        val serviceIntent = Intent(context, ScreenCaptureService::class.java)
-        context.stopService(serviceIntent)
-    }
-}
