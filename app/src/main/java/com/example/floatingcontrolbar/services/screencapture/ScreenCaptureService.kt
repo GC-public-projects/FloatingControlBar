@@ -53,15 +53,6 @@ class ScreenCaptureService : Service() {
         startForeground(NOTIFICATION_ID, notification)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        mediaProjection?.stop()
-        mediaProjection = null
-        MediaProjectionHolder.mediaProjection = null
-        MediaProjectionHolder.screenshotManager?.release()
-        MediaProjectionHolder.screenshotManager = null
-    }
-
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         val resultCode = intent.getIntExtra(EXTRA_RESULT_CODE, RESULT_CANCELED)
         val projectionData: Intent? = intent.getParcelableExtra(EXTRA_PROJECTION_DATA)
@@ -79,6 +70,15 @@ class ScreenCaptureService : Service() {
         }
 
         return START_NOT_STICKY
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mediaProjection?.stop()
+        mediaProjection = null
+        MediaProjectionHolder.mediaProjection = null
+        MediaProjectionHolder.screenshotManager?.release()
+        MediaProjectionHolder.screenshotManager = null
     }
 
     private fun createNotificationChannel() {
