@@ -23,7 +23,9 @@
         android:theme="@style/Theme.FloatingControlBar"
         tools:targetApi="31">
 
-        <receiver android:name=".services.screencapture.StopCaptureReceiver" /> <!-- do not forget ! -->
+        <receiver
+            android:name=".services.screencapture.StopCaptureReceiver"
+            android:exported="false" /> <!-- do not forget ! -->
 
         <activity
             android:name=".MainActivity"
@@ -45,7 +47,7 @@
             android:permission="android.permission.SYSTEM_ALERT_WINDOW" />
         <service
             android:name=".services.screencapture.ScreenCaptureService"
-            android:exported="true"
+            android:exported="false"
             android:foregroundServiceType="mediaProjection"
             android:permission="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
     </application>

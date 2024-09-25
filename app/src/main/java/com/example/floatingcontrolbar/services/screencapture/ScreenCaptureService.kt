@@ -102,12 +102,12 @@ class ScreenCaptureService : Service() {
         )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Screen Capture")
-            .setContentText("Capturing screen...")
+            .setContentTitle("Screenshot service")
+            .setContentText("Running...")
             .setSmallIcon(android.R.drawable.ic_notification_overlay)
             .addAction(
-                android.R.drawable.ic_media_pause,
-                "Stop Capture",
+                android.R.drawable.ic_delete,
+                "Stop service",
                 stopPendingIntent
             ) // Add stop action
             .build()
