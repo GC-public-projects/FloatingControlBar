@@ -1,5 +1,6 @@
 package com.example.floatingcontrolbar.services.screencapture
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
@@ -17,10 +18,10 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
-class ScreenshotManager(private val applicationContext: Context, context: Context) {
-    private val screenWidth = context.resources.displayMetrics.widthPixels
-    private val screenHeight = context.resources.displayMetrics.heightPixels
-    private val screenDensity = context.resources.displayMetrics.densityDpi
+class ScreenshotManager(private val applicationContext: Context) {
+    private val screenWidth = applicationContext.resources.displayMetrics.widthPixels
+    private val screenHeight = applicationContext.resources.displayMetrics.heightPixels
+    private val screenDensity = applicationContext.resources.displayMetrics.densityDpi
     private val imageReader = ImageReader.newInstance(screenWidth, screenHeight, PixelFormat.RGBA_8888, 1)
 
     var virtualDisplay: VirtualDisplay? = null
@@ -31,6 +32,10 @@ class ScreenshotManager(private val applicationContext: Context, context: Contex
         mediaProjectionCallback = object : MediaProjection.Callback() {
             override fun onStop() {
                 virtualDisplay?.release()
+                MediaProjectionHolder.mediaProjection = null
+                imageReader.close()
+                val serviceIntent = Intent(applicationContext, ScreenCaptureService::class.java)
+                applicationContext.stopService(serviceIntent)
                 super.onStop()
             }
         }

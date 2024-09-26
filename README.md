@@ -139,7 +139,7 @@ class ScreenCaptureService : Service() {
             mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, projectionData)
 
             MediaProjectionHolder.mediaProjection = mediaProjection
-            MediaProjectionHolder.screenshotManager = ScreenshotManager(applicationContext, this)
+            MediaProjectionHolder.screenshotManager = ScreenshotManager(applicationContext)
             mediaProjectionCallback?.onMediaProjectionReady()
         } else {
             stopSelf()
@@ -258,10 +258,10 @@ Creates and holds the mechanisms to take screenshots thank to the Mediaprojectio
 ### Content
 Inside package `screencapture` create kotlin class named `ScreenshotManager`
 ``` kotlin
-class ScreenshotManager(private val applicationContext: Context, context: Context) {
-    private val screenWidth = context.resources.displayMetrics.widthPixels
-    private val screenHeight = context.resources.displayMetrics.heightPixels
-    private val screenDensity = context.resources.displayMetrics.densityDpi
+class ScreenshotManager(private val applicationContext: Context) {
+    private val screenWidth = applicationContext.resources.displayMetrics.widthPixels
+    private val screenHeight = applicationContext.resources.displayMetrics.heightPixels
+    private val screenDensity = applicationContext.resources.displayMetrics.densityDpi
     private val imageReader = ImageReader.newInstance(screenWidth, screenHeight, PixelFormat.RGBA_8888, 1)
 
     var virtualDisplay: VirtualDisplay? = null
@@ -272,6 +272,10 @@ class ScreenshotManager(private val applicationContext: Context, context: Contex
         mediaProjectionCallback = object : MediaProjection.Callback() {
             override fun onStop() {
                 virtualDisplay?.release()
+                MediaProjectionHolder.mediaProjection = null
+                imageReader.close()
+                val serviceIntent = Intent(applicationContext, ScreenCaptureService::class.java)
+                applicationContext.stopService(serviceIntent)
                 super.onStop()
             }
         }
@@ -370,5 +374,6 @@ class ScreenshotManager(private val applicationContext: Context, context: Contex
 }
 ```
 
+### Components explanations
 
 

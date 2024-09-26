@@ -12,10 +12,10 @@ import androidx.compose.runtime.LaunchedEffect
 import com.example.floatingcontrolbar.services.screencapture.MediaProjectionHolder
 import com.example.floatingcontrolbar.services.screencapture.ScreenCaptureService
 
-interface MediaProjectionCallback {
+interface MediaProjectionInstantiatedCallback {
     fun onMediaProjectionReady()
 }
-class MediaProjectionPermissionActivity : ComponentActivity(), MediaProjectionCallback{
+class MediaProjectionPermissionActivity : ComponentActivity(), MediaProjectionInstantiatedCallback{
     private lateinit var mediaProjectionManager: MediaProjectionManager
     private lateinit var screenCaptureLauncher: ActivityResultLauncher<Intent>
 

@@ -14,7 +14,7 @@ import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
-import com.example.floatingcontrolbar.MediaProjectionCallback
+import com.example.floatingcontrolbar.MediaProjectionInstantiatedCallback
 
 class ScreenCaptureService : Service() {
     companion object {
@@ -23,14 +23,14 @@ class ScreenCaptureService : Service() {
         private const val EXTRA_RESULT_CODE = "EXTRA_RESULT_CODE"
         private const val EXTRA_PROJECTION_DATA = "EXTRA_PROJECTION_DATA"
 
-        private var mediaProjectionCallback: MediaProjectionCallback? = null
+        private var mediaProjectionInstantiatedCallback: MediaProjectionInstantiatedCallback? = null
         fun startServiceWithCallBack(
             context: Context,
             resultCode: Int,
             projectionData: Intent,
-            callback: MediaProjectionCallback
+            callback: MediaProjectionInstantiatedCallback
         ) {
-            mediaProjectionCallback = callback // static instance of MediaProjectionPermissionActivity but onlyonMediaProjectionReady() available
+            mediaProjectionInstantiatedCallback = callback // static instance of MediaProjectionPermissionActivity but only onMediaProjectionReady() available
             val intent = Intent(context, ScreenCaptureService::class.java).apply {
                 putExtra(EXTRA_RESULT_CODE, resultCode)
                 putExtra(EXTRA_PROJECTION_DATA, projectionData)
@@ -63,8 +63,8 @@ class ScreenCaptureService : Service() {
             mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, projectionData)
 
             MediaProjectionHolder.mediaProjection = mediaProjection
-            MediaProjectionHolder.screenshotManager = ScreenshotManager(applicationContext, this)
-            mediaProjectionCallback?.onMediaProjectionReady()
+            MediaProjectionHolder.screenshotManager = ScreenshotManager(applicationContext)
+            mediaProjectionInstantiatedCallback?.onMediaProjectionReady()
         } else {
             stopSelf()
         }
