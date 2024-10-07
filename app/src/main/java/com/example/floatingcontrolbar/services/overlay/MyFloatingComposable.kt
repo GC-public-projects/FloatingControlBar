@@ -35,7 +35,7 @@ fun MyFloatingComposable(
 ) {
     var offsetX by remember { mutableFloatStateOf(0f) }
     var offsetY by remember { mutableFloatStateOf(0f) }
-    Box(
+    Column(
         modifier = Modifier
             .wrapContentSize()
             .background(Color.Red)
@@ -51,65 +51,61 @@ fun MyFloatingComposable(
                     windowManager.updateViewLayout(overlayView, params)
                 }
             },
-
-        contentAlignment = Alignment.Center
     ) {
-        Column {
-            Text(text = "test")
-            Button(
-                onClick = {
-                    if(MediaProjectionHolder.mediaProjection == null) {
-                        openMediaProjectionPermissionActivity()
+        Text(text = "test")
+        Button(
+            onClick = {
+                if (MediaProjectionHolder.mediaProjection == null) {
+                    openMediaProjectionPermissionActivity()
 
-                    } else {
-                        MediaProjectionHolder.screenshotManager?.takeScreenshot(overlayView, openScreen)
-                    }
-
+                } else {
+                    MediaProjectionHolder.screenshotManager?.takeScreenshot(overlayView, openScreen)
                 }
-            ) {
-                Text(text = "Take screenshot & open it")
+
             }
-            Button(
-                onClick = {
-                    openScreen(
-                        listOf(
-                            MainActivity.INTENT_EXTRA_COMMAND_SHOW_TARGET_SCREEN to
-                                    "INTENT_EXTRA_TARGET_SCREEN_DATA_MAINSCREEN"
-                        )
+        ) {
+            Text(text = "Take screenshot & open it")
+        }
+        Button(
+            onClick = {
+                openScreen(
+                    listOf(
+                        MainActivity.INTENT_EXTRA_COMMAND_SHOW_TARGET_SCREEN to
+                                "INTENT_EXTRA_TARGET_SCREEN_DATA_MAINSCREEN"
                     )
-                },
-                modifier = Modifier
-                    .padding(0.dp)
-
-            ) {
-                Text(text = "Open MainScreen")
-            }
-            Button(
-                onClick = {
-                    openScreen(
-                        listOf(
-                            MainActivity.INTENT_EXTRA_COMMAND_SHOW_TARGET_SCREEN to
-                                    "INTENT_EXTRA_TARGET_SCREEN_DATA_SCREEN2"
-                        )
-                    )
-                },
-                modifier = Modifier
-                    .padding(0.dp)
-
-            ) {
-                Text(text = "Open Screen 2")
-            }
-            Button(
-                onClick = { hideOverlay() },
-                modifier = Modifier
-                    .padding(0.dp)
-
-            ) {
-                Text(
-                    text = "Close Overlay",
-                    modifier = Modifier.padding(0.dp)
                 )
-            }
+            },
+            modifier = Modifier
+                .padding(0.dp)
+
+        ) {
+            Text(text = "Open MainScreen")
+        }
+        Button(
+            onClick = {
+                openScreen(
+                    listOf(
+                        MainActivity.INTENT_EXTRA_COMMAND_SHOW_TARGET_SCREEN to
+                                "INTENT_EXTRA_TARGET_SCREEN_DATA_SCREEN2"
+                    )
+                )
+            },
+            modifier = Modifier
+                .padding(0.dp)
+
+        ) {
+            Text(text = "Open Screen 2")
+        }
+        Button(
+            onClick = { hideOverlay() },
+            modifier = Modifier
+                .padding(0.dp)
+
+        ) {
+            Text(
+                text = "Close Overlay",
+                modifier = Modifier.padding(0.dp)
+            )
         }
     }
 }

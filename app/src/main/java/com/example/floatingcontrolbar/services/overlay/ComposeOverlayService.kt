@@ -105,7 +105,7 @@ class ComposeOverlayService : Service(),
                 MyFloatingComposable(
                     ::hideOverlay,
                     ::openScreen,
-                    ::openMediaProjectionPermisionActivity,
+                    ::openMediaProjectionPermissionActivity,
                     params,
                     windowManager,
                     overlayView
@@ -140,7 +140,7 @@ class ComposeOverlayService : Service(),
         }
         startActivity(intent)
     }
-    private fun openMediaProjectionPermisionActivity() {
+    private fun openMediaProjectionPermissionActivity() {
         val intent = Intent(this, MediaProjectionPermissionActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
 

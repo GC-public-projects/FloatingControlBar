@@ -47,5 +47,4 @@ class MediaProjectionPermissionActivity : ComponentActivity(), MediaProjectionIn
     override fun onMediaProjectionReady() {
         finish()
     }
-
 }

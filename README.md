@@ -244,6 +244,7 @@ Stop ScreenCaptureService. It is of type `BroadcastReceiver()` in order to be im
 ### Content
 Inside package `screencapture` create kotlin class named `StopCaptureReceiver`
 ``` kotlin
+class StopCaptureReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         // Stop the ScreenCaptureService if it is running
         val serviceIntent = Intent(context, ScreenCaptureService::class.java)
@@ -409,8 +410,8 @@ Handles the mechanism to display `MyFloatingComposable` over the apps. See `Floa
 
 
 ### Content
-Create in package services a new package named `overlay`
-in thsi package create Kotlin class named `ComposeOverlayService `
+Create in package `services` a new package named `overlay`
+in this package create Kotlin class named `ComposeOverlayService `
 
 ``` kotlin
 class ComposeOverlayService : Service(),
@@ -532,7 +533,7 @@ class ComposeOverlayService : Service(),
         }
         startActivity(intent)
     }
-    private fun openMediaProjectionPermisionActivity() {
+    private fun openMediaProjectionPermissionActivity() {
         val intent = Intent(this, MediaProjectionPermissionActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
 
@@ -557,7 +558,6 @@ class ComposeOverlayService : Service(),
 }
 ```
 
-
 ### Component explanations
  2 new functions that don't concern the overlay mechanism have been added in addition of the ones already present in my `FloatinButton project` : 
 
@@ -565,5 +565,164 @@ class ComposeOverlayService : Service(),
 
 - `openMediaProjectionPermisionActivity()` : An activity is mandatory to display a permission dialog. In occurence, the permission dialog to record the screen. This activity will be explained on point 3.
 
-## MyFloatingComposable (composable) : 
+
+## MyFloatingComposable (composable)
+4 buttons available ordered in a column. The column has the same modifier method `pointerInput` than the one of the button in the `FloatingButton` project in order to make it draggable
+
+### Content
+Create in package `overlay` a new Kotlin file named `MyFloatingComposable`
+
+``` kotlin
+@Composable
+fun MyFloatingComposable(
+    hideOverlay: () -> Unit,
+    openScreen: (List<Pair<String, String?>>) -> Unit,
+    openMediaProjectionPermissionActivity: () -> Unit,
+    params: WindowManager.LayoutParams,
+    windowManager: WindowManager,
+    overlayView: View?
+) {
+    var offsetX by remember { mutableFloatStateOf(0f) }
+    var offsetY by remember { mutableFloatStateOf(0f) }
+    Box(
+        modifier = Modifier
+            .wrapContentSize()
+            .background(Color.Red)
+            .pointerInput(Unit) {
+                detectDragGestures { change, dragAmount ->
+                    change.consume()
+                    offsetX += dragAmount.x
+                    offsetY += dragAmount.y
+
+                    // Update the layout params of the overlayView
+                    params.x = offsetX.toInt()
+                    params.y = offsetY.toInt()
+                    windowManager.updateViewLayout(overlayView, params)
+                }
+            },
+
+        contentAlignment = Alignment.Center
+    ) {
+        Column {
+            Text(text = "test")
+            Button(
+                onClick = {
+                    if(MediaProjectionHolder.mediaProjection == null) {
+                        openMediaProjectionPermissionActivity()
+
+                    } else {
+                        MediaProjectionHolder.screenshotManager?.takeScreenshot(overlayView, openScreen)
+                    }
+
+                }
+            ) {
+                Text(text = "Take screenshot & open it")
+            }
+            Button(
+                onClick = {
+                    openScreen(
+                        listOf(
+                            MainActivity.INTENT_EXTRA_COMMAND_SHOW_TARGET_SCREEN to
+                                    "INTENT_EXTRA_TARGET_SCREEN_DATA_MAINSCREEN"
+                        )
+                    )
+                },
+                modifier = Modifier
+                    .padding(0.dp)
+
+            ) {
+                Text(text = "Open MainScreen")
+            }
+            Button(
+                onClick = {
+                    openScreen(
+                        listOf(
+                            MainActivity.INTENT_EXTRA_COMMAND_SHOW_TARGET_SCREEN to
+                                    "INTENT_EXTRA_TARGET_SCREEN_DATA_SCREEN2"
+                        )
+                    )
+                },
+                modifier = Modifier
+                    .padding(0.dp)
+
+            ) {
+                Text(text = "Open Screen 2")
+            }
+            Button(
+                onClick = { hideOverlay() },
+                modifier = Modifier
+                    .padding(0.dp)
+
+            ) {
+                Text(
+                    text = "Close Overlay",
+                    modifier = Modifier.padding(0.dp)
+                )
+            }
+        }
+    }
+}
+```
+
+#### Components explanations
+- 1st button : `Take screenshot & open it` : Tests if the MediaProjection instance has been instantiated. If no, `openMediaProjectionPermissionActivity()` is called in order to show the permission dialog for screen capturing, and start the background service `ScreenCaptureService` that will instantiate MediaProjection. If yes, the screenshot is taken. Open screen is passed as param to open the screenshot in the dedicated screen.
+
+- 2nd button `Open MainScreen` : Open the MainScreen with the openScreen function by passsing the dedicated extra to the MainActivity
+
+- 3rd button `Open Screen 2` : Same principle than `Open MainScreen` but to open the Screen 2. The screen 2 content has just a Text that displays "SCREEN 2". Its purpose is just to show how the extras passed to an activity (MainActivity) are used to open different screens.
+
+- 4th button `Close Overlay` : Already present in `FloatinButton project`. Its purpose is to remove the Composeview compound of the floating composable from the WindowManager.
+
+
+# 3. ACTIVITIES
+
+## MediaProjectionPermissionActivity (class)
+
+### Purpose
+Activity implemented in orer to display the permission dialog to capture the screen and start the service `ScreenCaptureService`. It was also possible to use MainActivity but it is better to dedicate another activity for this task in order to not overload the MainActivity and to gain in understanding.
+
+### Content
+In the main package create a Kotlin Class file named `MediaProjectionPermissionActivity`
+
+``` kotlin
+interface MediaProjectionInstantiatedCallback {
+    fun onMediaProjectionReady()
+}
+class MediaProjectionPermissionActivity : ComponentActivity(), MediaProjectionInstantiatedCallback{
+    private lateinit var mediaProjectionManager: MediaProjectionManager
+    private lateinit var screenCaptureLauncher: ActivityResultLauncher<Intent>
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        mediaProjectionManager =
+            getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+        screenCaptureLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == RESULT_OK && result.data != null) {
+                    ScreenCaptureService.startServiceWithCallBack(this, result.resultCode, result.data!!, this)
+                } else {
+                    // handle the case if permission not granted or no intent generated
+                }
+            }
+        setContent {
+            LaunchedEffect(Unit) { requestScreenCapturePermission() }
+        }
+    }
+
+    private fun requestScreenCapturePermission() {
+        if (MediaProjectionHolder.mediaProjection == null) {
+            val captureIntent = mediaProjectionManager.createScreenCaptureIntent()
+            screenCaptureLauncher.launch(captureIntent)
+        }
+    }
+
+    override fun onMediaProjectionReady() {
+        finish()
+    }
+}
+```
+
+
+
 
