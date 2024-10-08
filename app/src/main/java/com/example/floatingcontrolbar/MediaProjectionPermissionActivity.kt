@@ -24,7 +24,7 @@ class MediaProjectionPermissionActivity : ComponentActivity(), MediaProjectionIn
 
         mediaProjectionManager =
             getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-        screenCaptureLauncher =
+        screenCaptureLauncher = // params are ActivityResultContract &
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 if (result.resultCode == RESULT_OK && result.data != null) {
                     ScreenCaptureService.startServiceWithCallBack(this, result.resultCode, result.data!!, this)
