@@ -38,8 +38,8 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             FloatingControlBarTheme {
-                var showPermissionDialog by remember { mutableStateOf(false) }
-                val modifyShowPermissionDialog = { bool: Boolean -> showPermissionDialog = bool }
+                var showOverlayPermissionDialog by remember { mutableStateOf(false) }
+                val modifyShowOverlayPermissionDialog = { bool: Boolean -> showOverlayPermissionDialog = bool }
 
                 val targetScreenFromService =
                     intent.getStringExtra(INTENT_EXTRA_COMMAND_SHOW_TARGET_SCREEN)
@@ -51,7 +51,7 @@ class MainActivity : ComponentActivity() {
                 if (targetScreenFromService != null) {
                     when (targetScreenFromService) {
                         INTENT_EXTRA_TARGET_SCREEN_DATA_MAINSCREEN -> {
-                            MainScreen(context, modifyShowPermissionDialog)
+                            MainScreen(context, modifyShowOverlayPermissionDialog)
                         }
 
                         INTENT_EXTRA_TARGET_SCREEN_DATA_SCREEN2 -> {
@@ -68,12 +68,12 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 } else {
-                    if (showPermissionDialog) {
+                    if (showOverlayPermissionDialog) {
                         OverlayPermissionAlertDialog(message = "\"Display over other apps\" permission required !",
-                            onDismiss = { modifyShowPermissionDialog(false) },
-                            onConfirm = { openOverlaySettings(); modifyShowPermissionDialog(false) })
+                            onDismiss = { modifyShowOverlayPermissionDialog(false) },
+                            onConfirm = { openOverlaySettings(); modifyShowOverlayPermissionDialog(false) })
                     }
-                    MainScreen(context, modifyShowPermissionDialog)
+                    MainScreen(context, modifyShowOverlayPermissionDialog)
                 }
             }
         }
