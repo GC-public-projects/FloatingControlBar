@@ -1,9 +1,9 @@
 # FloatingControlBar
-JetPack compose app whose main purpose is to take a screenshot of the screen included elements inside and outside the app. The screenshot is triggered from a floating bar that is displayed over all the apps. Once the screenshot is taken, it is displayed an in specific screen. 
+JetPack compose app whose main purpose is to take a screenshot from a floating bar displayed over all the apps. Once the screenshot is taken, it is displayed an in specific screen. 
 
-The floating bar has some other buttons that let us browse some other screens of our app.
+The floating bar has some other buttons to browse some screens of the app.
 
-### Project status : Workable, documentation in progress...
+### Project status : Workable, documentation completed
 
 ## target audience
 This project is for Jetpack Compose initiated user
@@ -11,20 +11,31 @@ This project is for Jetpack Compose initiated user
 ## Presentation
 The goal of this demo is to understand the mechanism to setup in order to be able to capture the screen outside the app (not that simple !)
 
-The buttons of the floating bar that let us browse between some different screens have of main purpose to understand the communication principle between a standelone service and an activity in the 2 direction without using "onBind".
+The buttons of the floating bar that let us browse between some different screens have of main purpose to understand the communication principle between a standelone service and an activity in the 2 directions without using "onBind".
 
 This demo is a follow up of the "FloatingButton" project already in my Github. So the components setup in order to display composables over the apps won't be explained again. 
 
 ## Overview
-<img src="/app/screenshots/screen1.png" alt="" height="390">&emsp;
-<img src="/app/screenshots/screen2.png" alt="" height="390">&emsp;
-<img src="/app/screenshots/screen3.png" alt="" height="390">&emsp;
-<img src="/app/screenshots/screen4.png" alt="" height="390">&emsp;
+- 1 : Alert dialog notifications
+- 2 : Alert AlertDialog open overlay settings
+- 3 : Display over the apps settings
+- 4 : Floating composable without any activty open
+- 5 : Floating composable + screen 2
+- 6 : Alert dialog screen capturing
+- 7 : Notification of ScreenCaptureService
+- 8 : ScreenScreenshot view reduced
 
-<img src="/app/screenshots/screen5.png" alt="" height="390">&emsp;
-<img src="/app/screenshots/screen6.png" alt="" height="390">&emsp;
-<img src="/app/screenshots/screen7.png" alt="" height="390">&emsp;
-<img src="/app/screenshots/screen8.png" alt="" height="390">&emsp;
+
+<img src="/app/screenshots/screen1.png" alt="Alert dialog notifications" height="390">&emsp;
+<img src="/app/screenshots/screen2.png" alt="Alert AlertDialog open overlay settings" height="390">&emsp;
+<img src="/app/screenshots/screen3.png" alt="Display over the apps settings" height="390">&emsp;
+<img src="/app/screenshots/screen4.png" alt="Floating composable without any activty open" height="390">&emsp;
+
+
+<img src="/app/screenshots/screen5.png" alt="Floating composable + screen 2" height="390">&emsp;
+<img src="/app/screenshots/screen6.png" alt="Alert dialog screen capturing" height="390">&emsp;
+<img src="/app/screenshots/screen7.png" alt="Notification of ScreenCaptureService" height="390">&emsp;
+<img src="/app/screenshots/screen8.png" alt="ScreenScreenshot view reduced" height="390">&emsp;
 
 
 # Init
@@ -57,7 +68,7 @@ In AndroidManifest.xml
 ```
 
 ### Receiver
-Obligatory implementation in order to manually stop the screen capture mechanism launched by the Android system
+Obligatory implementation in order to manually stop the screen capture mechanism launched by the Android system from a notification
 
 In AndroidManifest.xml
 ``` xml
@@ -75,10 +86,10 @@ In AndroidManifest.xml
 # 1. SERVICES/SCREENCAPTURE PACKAGE
 
 ## ScreenCaptureService (class)
-Foreground service initialized in the Android manifest as such. The onCreate() Method calls the required startForeground() function.
+Foreground service initialized in the Android manifest as such. The onCreate() method calls the required startForeground() function.
 
 ### Purpose
-Creation of the MediaProjection instance compound of the mandatory elements to capture the screen content regardless the app. The Android sytem doesn't allow us to create this instance outside a foreground service of type "Media projection"in order to rely with the user's privacy and transparanty policy. Indeed in a foreground service we need to display a persistent notification that will inform the user something is running in the background.
+Creation of the MediaProjection instance compound of the mandatory elements to capture the screen content regardless the app. The Android system doesn't allow us to create this instance outside a foreground service of type "Media projection" in order to rely with the user's privacy and transparanty policy. Indeed in a foreground service we need to display a persistent notification that will inform the user something is running in the background.
 
 ### Content
 - in the main package, create another package named `services`
@@ -187,15 +198,20 @@ class ScreenCaptureService : Service() {
 ### Components explanations
 
 #### Companion object
+Its purpose is to instanciate the ScreenCaptureService.
 
-Its purpose is to instanciate the ScreenCaptureService. `startServiceWithCallBack(...)` will be called from an activity. The params of the function are compound of : 
+- `CHANNEL_ID` & `NOTIFICATION_ID` : data mandatory to create the notification and start it
+- `EXTRA_RESULT_CODE` & `EXTRA_PROJECTION_DATA` : extra keys constants declaration for the intent creation of the service.
+
+
+`startServiceWithCallBack(...)` will be called from an activity to start the service. The params of the function are compound of : 
 
 - the activity `context`
-- the result code of the permission prompt to capture the screen (-1 : accepted, 0 : denied)
+- the result code of the  screen capture permission prompt  (-1 : accepted, 0 : denied)
 - the `data` generated by the Android system activity in case the permission to capture the screen is accepted. The data is of type `Intent`, So it implements the interface `Parcelable`. That means it can by passed as extra param of an intent. This data is mandatory to create the MediaProjection object.
-- A `callback` : the activity that generates the prompt to capture the screen needs to be closed. But if we try to close it after instanciated the service, it is to soon and the data generated from this activity is destroyed before it is passed to the service. That's why we created an interface `MediaProjectionCallback` implemented by the activity that starts the service. The interface has just 1 function `onMediaProjectionReady()` that will close the activity in due time. 
+- A `callback` : the activity that generates the prompt to capture the screen needs to be closed. But if we try to close it directly after instanciated the service, it is to soon and the data generated from this activity is destroyed before the service retrieve it. That's why we created an interface `MediaProjectionCallback` implemented by the activity that starts the service. The interface has just 1 function `onMediaProjectionReady()` that will close the activity in due time. 
 
-So the instance of `MediaProjectionPermissionActivity` is stored as a static component in the companion object and is of type `MediaProjectionCallback`. This instance, as a static one, can be called at any time from any place in the project. in occurence, the method `MediaProjectionReady()` from this instance will be called after the creation of MediaProjection.
+So the instance of `MediaProjectionPermissionActivity` is stored as a static component in the companion object and is of type `MediaProjectionCallback`. This instance, as a static one, can be called at any time from any place in the project. in occurence, the method `MediaProjectionReady()` from this instance will be called after the creation of MediaProjection in the `ScreenCaptureService`.
 
 #### MediaProjection 
 It is the key component of the service. It will be the root to create all the components mandatory to capture the screen. To ease the access of this instance, it will ba also stored in a singleton `MediaProjectionHolder`
@@ -205,11 +221,11 @@ To make the service a `Foreground` one it has to be declared in the manifest as 
 
 
 #### onStartCommand(...)
-Retrieve the data of service creation intent in order to create the `Mediaprojection` instance.
-Once the instance is created, it is passed to the MediaProjectionHolder singelton. Then an instance of `ScreenshotManager` is created. This User-defined class has got all the components generated thank to MediaProjection in order to take the screenshot and will be detailed later.
+Retrieve the data of the service creation intent in order to create the `Mediaprojection` instance.
+Once the instance is created, it is passed to the MediaProjectionHolder singelton. Then an instance of `ScreenshotManager` is created. This User-defined class holds all the components generated thanks to MediaProjection in order to take the screenshot and will be detailed later.
 
 #### onDestroy()
-We clean, realease the maximum we can the objects created once the service is stopped.
+We clean/realease the maximum we can the objects created once the service is stopped.
 
 #### createNotificationChannel()
 The channel is mandatory to display a notification.
@@ -391,14 +407,15 @@ container that provides the content of the screen. The images generated by the v
 
 - `mediaProjectionCallback` : need to be setup and added to the mediaProjection instance. Its purpose is to do some action in case mediaProjection is killed by the user or the system. In occurance its purpose is to release/kill the components generated in order to avoid memory leaks.
 
-- `takeScreenshot(...)` : Public function called from a floatingComposable button to take the screenshot. It takes as param the `overlayView` in order to hide it when the screenshot is taken and the `openScreen` function in order to display the screenshot in a screen. These 2 params belong the `ComposeOverlayService`
+- `takeScreenshot(...)` : Public function called from a floatingComposable button to take the screenshot. It takes as param the `overlayView` in order to hide it when the screenshot is taken and the `openScreen` function in order to display the screenshot in a screen. These 2 params belong the `ComposeOverlayService`.
+
+A delay (100) is mandatory to let the time the  overlay view to become invisible before the screenshot is taken as we don't want to see the composeview on the screenshot. I didn't find any other way to avoid the delay, neither by setup a listener for the view changes or by using .isVisible on the view. The issue is the visible status of the view is setup before the view is modified. If someone has a workable way to avoid the setup of a delay to take the screenshot without the overlay view, i will appreciate he let me know...
 
 - `saveBitmapToInternalStorage(...)` : Compress the image in png and save it in the device storage in the app folder.
 
 - `acquireImage(...)` : Private function that retrieves the image from the imageReader buffer, create a bitmap from it, save it to the device and open it in the "ScreenScreenshot" screen from the MainActivity thanks to the 2 extras (1 to target the screen to open and the other one to hold the path of the image stored in the app folder of the device. 
 
 - `release` : Clean up resources when the service is stopped to avoid memory leaks
-
 
 
 # 2. SERVICES/OVERLAY PACKAGE
@@ -825,7 +842,7 @@ class MainActivity : ComponentActivity() {
 ```
 
 ### Components explanations
-If the MainActivity is normaly started for the 1st time `targetScreenFromService` is null beacause no extra are setup yet. So as `showOverlayPermissionDialog` is first false the `OverlayPermissionAlertDialog` is dislayed and closed once the user went to the settings or refused to go there. Then The MainScreen is open. If the Mainactvity is open from the floating composable, the intent to open it will get some extras in order to target which screen needs to be open.
+If the MainActivity is normaly started for the 1st time `targetScreenFromService` is null beacause no extra are setup yet. So as `showOverlayPermissionDialog` is first false the `OverlayPermissionAlertDialog` is dislayed and closed once the user went to the settings or refused to go there. Then The MainScreen is open. If the MainActvity is opened from the floating composable, the intent to open it will get some extras in order to target which screen needs to be open.
 
 - `showOverlayPermissionDialog`, `modifyShowOverlayPermissionDialog`, `openOverlaySettings()` : these components are part of the overlay mechanism and already explained in the `FloatingButton` project of my Github
 
@@ -837,7 +854,109 @@ If the MainActivity is normaly started for the 1st time `targetScreenFromService
 
 - `onCreate` : retrieve of the intent of the MainActivity in order to get the extra(s) if some exist and open the correct screen in function. The extra key `INTENT_EXTRA_SCREENSHOT_PATH` is used to get the path of the screenshot captured. 
 
-- `requestNotificationsPermission()` : Method that handles the alert dialog generated by the Android System in order to accept the permission for the notifications. When accepted the `ScreenCaptureService` will be able to create the notification taht infor the user the service is running.
+- `requestNotificationsPermission()` : Method that handles the alert dialog generated by the Android System in order to accept the permission for the notifications. When accepted the `ScreenCaptureService` will be able to create the notification that inform the user the service is running.
+
+## OverlayPermissionAlertDialog (Composable)
+Same content than the one of the `FloatingButton` project of my Github. So the AlertDialog responsible to open the overlay settings
+
+### Content
+In main package create a Kotlin file named `OverlayPermissionAlertDialog`
+``` kotlin
+@Composable
+fun OverlayPermissionAlertDialog(
+    message: String, onDismiss: () -> Unit, onConfirm: () -> Unit
+) {
+    AlertDialog(onDismissRequest = onDismiss,
+        title = { Text(text = "Permission Required") },
+        text = { Text(text = message) },
+        confirmButton = {
+            Button(onClick = onConfirm) {
+                Text(text = "Overlay Settings")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text(text = "Deny")
+            }
+        })
+}
+```
+
+# 4. SCREENS PACKAGE
+
+## MainScreen (Composable)
+Same content than the one of the `FloatingButton` project of my Github. So, 2 buttons taht call the 2 functions of the companion object of the `ComposeOverlayService` in order to start it by displaying or hidding the overay view.
+
+### Content
+- create a package named `screens`  in the main package
+- in this package, create a kotlin file named MainScreen
+``` kotlin
+@Composable
+fun MainScreen(context: Context, modifyShowPermissionDialog: (Boolean) -> Unit) {
+    Column {
+        Button(onClick = {
+            if (!Settings.canDrawOverlays(context)) {
+                modifyShowPermissionDialog(true)
+            } else {
+                ComposeOverlayService.showOverlay(context)
+            }
+        }) {
+            Text(text = "Show Overlay")
+        }
+        Button(onClick = {
+            ComposeOverlayService.hideOverlay(context)
+        }) {
+            Text(text = "Hide Overlay")
+        }
+    }
+}
+```
+
+## Screen2 (Composable)
+Just a Text with screen 2 content. The screen 2 purpose is just there to understand the principe of opening a target screen by passing some extra in the intent of an activity.
+
+### Content
+In package `screens` create kotlin file named `Screen2`
+``` kotlin
+@Composable
+fun Screen2() {
+    Text(
+        text = "SCREEN 2",
+        fontSize = 50.sp
+    )
+}
+```
+
+## ScreenScreenshot (Composable)
+
+### Purpose
+Display the screenshot that was just taken before from the flaoting composable. 
+
+### Content
+In package `screens` create kotlin file named ScreenScreenshot
+``` kotlin
+@Composable
+fun ScreenScreenshot(filePath: String?) {
+    if (filePath != null) {
+        val bitmap = BitmapFactory.decodeFile(filePath)
+        bitmap?.let {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black)
+            ) {
+                Image(
+                    bitmap = it.asImageBitmap(),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    contentScale = ContentScale.Crop // Crop the image to fill the screen, maintaining the aspect ratio
+                )
+            }
+        }
+    }
+}
+```
 
 
 
