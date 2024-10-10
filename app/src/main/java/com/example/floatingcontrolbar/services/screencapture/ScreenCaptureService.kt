@@ -55,7 +55,7 @@ class ScreenCaptureService : Service() {
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         val resultCode = intent.getIntExtra(EXTRA_RESULT_CODE, RESULT_CANCELED)
-        val projectionData: Intent? = intent.getParcelableExtra(EXTRA_PROJECTION_DATA)
+        val projectionData: Intent? = intent.getParcelableExtra(EXTRA_PROJECTION_DATA, Intent::class.java)
 
         if (resultCode == RESULT_OK && projectionData != null) {
             val mediaProjectionManager =
