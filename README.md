@@ -120,14 +120,14 @@ class ScreenCaptureService : Service() {
         private const val EXTRA_RESULT_CODE = "EXTRA_RESULT_CODE"
         private const val EXTRA_PROJECTION_DATA = "EXTRA_PROJECTION_DATA"
 
-        private var mediaProjectionCallback: MediaProjectionCallback? = null
+        private var mediaProjectionInstantiatedCallback: MediaProjectionInstantiatedCallback? = null
         fun startServiceWithCallBack(
             context: Context,
             resultCode: Int,
             projectionData: Intent,
-            callback: MediaProjectionCallback
+            callback: MediaProjectionInstantiatedCallback
         ) {
-            mediaProjectionCallback = callback // static instance of MediaProjectionPermissionActivity but onlyonMediaProjectionReady() available
+            mediaProjectionInstantiatedCallback = callback // static instance of MediaProjectionPermissionActivity but only onMediaProjectionReady() available
             val intent = Intent(context, ScreenCaptureService::class.java).apply {
                 putExtra(EXTRA_RESULT_CODE, resultCode)
                 putExtra(EXTRA_PROJECTION_DATA, projectionData)
@@ -150,15 +150,6 @@ class ScreenCaptureService : Service() {
         startForeground(NOTIFICATION_ID, notification)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        mediaProjection?.stop()
-        mediaProjection = null
-        MediaProjectionHolder.mediaProjection = null
-        MediaProjectionHolder.screenshotManager?.release()
-        MediaProjectionHolder.screenshotManager = null
-    }
-
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         val resultCode = intent.getIntExtra(EXTRA_RESULT_CODE, RESULT_CANCELED)
         val projectionData: Intent? = intent.getParcelableExtra(EXTRA_PROJECTION_DATA, Intent::class.java)
@@ -170,12 +161,21 @@ class ScreenCaptureService : Service() {
 
             MediaProjectionHolder.mediaProjection = mediaProjection
             MediaProjectionHolder.screenshotManager = ScreenshotManager(applicationContext)
-            mediaProjectionCallback?.onMediaProjectionReady()
+            mediaProjectionInstantiatedCallback?.onMediaProjectionReady()
         } else {
             stopSelf()
         }
 
         return START_NOT_STICKY
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mediaProjection?.stop()
+        mediaProjection = null
+        MediaProjectionHolder.mediaProjection = null
+        MediaProjectionHolder.screenshotManager?.release()
+        MediaProjectionHolder.screenshotManager = null
     }
 
     private fun createNotificationChannel() {
@@ -199,12 +199,12 @@ class ScreenCaptureService : Service() {
         )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Screen Capture")
-            .setContentText("Capturing screen...")
+            .setContentTitle("Screenshot service")
+            .setContentText("Running...")
             .setSmallIcon(android.R.drawable.ic_notification_overlay)
             .addAction(
-                android.R.drawable.ic_media_pause,
-                "Stop Capture",
+                android.R.drawable.ic_delete,
+                "Stop service",
                 stopPendingIntent
             ) // Add stop action
             .build()
