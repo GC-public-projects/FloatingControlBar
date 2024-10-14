@@ -77,7 +77,7 @@ In AndroidManifest.xml
         android:permission="android.permission.SYSTEM_ALERT_WINDOW" />
     <service
         android:name=".services.screencapture.ScreenCaptureService"
-        android:exported="true"
+        android:exported="false"
         android:foregroundServiceType="mediaProjection"
         android:permission="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
 </application>
@@ -206,7 +206,7 @@ class ScreenCaptureService : Service() {
                 android.R.drawable.ic_delete,
                 "Stop service",
                 stopPendingIntent
-            ) // Add stop action
+            )
             .build()
     }
 }
