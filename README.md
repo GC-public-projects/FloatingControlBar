@@ -16,7 +16,7 @@ The buttons of the floating bar that let us browse between some different screen
 This demo is a follow up of the "FloatingButton" project already in my Github. So the components setup in order to display composables over the apps won't be explained again. 
 
 ## Overview
-- 1 : AlerDialog notifications
+- 1 : AlertDialog notifications
 - 2 : AlertDialog open overlay settings
 - 3 : Display over the apps settings
 - 4 : Floating composable without any activty open
