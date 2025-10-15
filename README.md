@@ -16,24 +16,24 @@ The buttons of the floating bar that let us browse between some different screen
 This demo is a follow up of the "FloatingButton" project already in my Github. So the components setup in order to display composables over the apps won't be explained again. 
 
 ## Overview
-- 1 : Alert dialog notifications
-- 2 : Alert AlertDialog open overlay settings
+- 1 : AlerDialog notifications
+- 2 : AlertDialog open overlay settings
 - 3 : Display over the apps settings
 - 4 : Floating composable without any activty open
 - 5 : Floating composable + screen 2
-- 6 : Alert dialog screen capturing
+- 6 : AlertDialog screen capturing
 - 7 : Notification of ScreenCaptureService
 - 8 : ScreenScreenshot view reduced
 
 
-<img src="/app/screenshots/screen1.png" alt="Alert dialog notifications" height="390">&emsp;
-<img src="/app/screenshots/screen2.png" alt="Alert AlertDialog open overlay settings" height="390">&emsp;
+<img src="/app/screenshots/screen1.png" alt="AlertDialog notifications" height="390">&emsp;
+<img src="/app/screenshots/screen2.png" alt="AlertDialog open overlay settings" height="390">&emsp;
 <img src="/app/screenshots/screen3.png" alt="Display over the apps settings" height="390">&emsp;
 <img src="/app/screenshots/screen4.png" alt="Floating composable without any activty open" height="390">&emsp;
 
 
 <img src="/app/screenshots/screen5.png" alt="Floating composable + screen 2" height="390">&emsp;
-<img src="/app/screenshots/screen6.png" alt="Alert dialog screen capturing" height="390">&emsp;
+<img src="/app/screenshots/screen6.png" alt="AlertDialog screen capturing" height="390">&emsp;
 <img src="/app/screenshots/screen7.png" alt="Notification of ScreenCaptureService" height="390">&emsp;
 <img src="/app/screenshots/screen8.png" alt="ScreenScreenshot view reduced" height="390">&emsp;
 
